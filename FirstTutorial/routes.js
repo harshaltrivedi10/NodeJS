@@ -19,7 +19,7 @@ const requestHandler = (request, response) => {
     request.on('data', (chunk) => {
       body.push(chunk);
     });
-    request.on('end', () => {
+    return request.on('end', () => {
       const parsedBody = Buffer.concat(body).toString();
       // console.log(parsedBody);
       const message = parsedBody.split('=')[1];
