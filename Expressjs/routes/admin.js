@@ -10,7 +10,10 @@ Router.get('/add-product', (req, res, next) => {
   // sending a response here!
   res.render('add-product', {
     pageTitle: 'Add Product',
-    path: '/admin/add-product'
+    path: '/admin/add-product',
+    activeAddProduct: true,
+    productCSS: true,
+    formsCSS: true
   });
 });
 

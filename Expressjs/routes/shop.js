@@ -11,7 +11,14 @@ const adminData = require('./admin');
 Router.get('/', (req, res, next) => {
   // sending a response here!
   const products = adminData.products;
-  res.render('shop', { props: products, pageTitle: 'Shop', path: '/' });
+  res.render('shop', {
+    props: products,
+    pageTitle: 'Shop',
+    path: '/',
+    hasProducts: products.length > 0,
+    activeShop: true,
+    productCSS: true
+  });
 });
 
 module.exports = Router;
