@@ -3,7 +3,7 @@ const app = express();
 const path = require('path');
 const adminData = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-app.set('view engine', 'pug');
+app.set('view engine', 'ejs');
 app.set('views', 'views');
 // here next is a function, used to call subsequent middlewares
 
