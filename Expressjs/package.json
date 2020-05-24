@@ -10,6 +10,7 @@
   "author": "Harshal Trivedi",
   "license": "ISC",
   "devDependencies": {
+    "ejs-lint": "^1.1.0",
     "nodemon": "^2.0.4"
   },
   "dependencies": {
