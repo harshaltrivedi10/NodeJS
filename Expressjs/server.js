@@ -17,7 +17,7 @@ app.use((req, res, next) => {
   User.findById('5ed687524fb8864bdc888cff')
     .then((user) => {
       // this is a sequelize object and not a JSON object
-      req.user = user;
+      req.user = new User(user.username, user.email, user.cart, user._id);
       next();
     })
     .catch((error) => console.log(error));
