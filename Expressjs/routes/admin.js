@@ -5,10 +5,10 @@ const adminController = require('../controllers/admin');
 //  /admin/add-product => GET
 Router.get('/add-product', adminController.getAddProduct);
 
-//  /admin/add-product => POST
+// //  /admin/add-product => POST
 Router.post('/add-product', adminController.postAddProduct);
 
-// /admin/products
+// // /admin/products
 Router.get('/products', adminController.getProducts);
 
 Router.get('/edit-product/:productId', adminController.getEditProduct);

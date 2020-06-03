@@ -14,14 +14,13 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   // creating a product belonging to a particular user
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    null,
-    req.user._id
-  );
+  const product = new Product({
+    title: title,
+    imageUrl: imageUrl,
+    price: price,
+    description: description,
+    userId: req.user
+  });
   product
     .save()
     .then((result) => {
@@ -61,15 +60,15 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedDescription = req.body.description;
 
-  const product = new Product(
-    updatedTitle,
-    updatedPrice,
-    updatedDescription,
-    updatedImageUrl,
-    productId
-  );
-  product
-    .save()
+  Product.findById(productId)
+    .then((product) => {
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.imageUrl = updatedImageUrl;
+      product.description = updatedDescription;
+
+      return product.save();
+    })
     .then((result) => {
       console.log('UPDATED');
       res.redirect('/admin/products');
@@ -78,7 +77,11 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
+    // selective fields that you want to be retrieved
+    // .select('title price -_id')
+    // to populate based on reference
+    // .populate('userId')
     .then((products) => {
       res.render('admin/products', {
         props: products,
@@ -91,7 +94,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.deleteById(productId)
+  Product.findByIdAndRemove(productId)
     .then(() => {
       console.log('DESTROYED');
       res.redirect('/admin/products');
