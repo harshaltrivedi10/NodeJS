@@ -1,27 +1,52 @@
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
 
 exports.getLogin = (req, res, next) => {
   //   console.log(req.get('Cookie'));
   //   const isLoggedIn = req.get('Cookie').split('=')[1] === 'true';
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   console.log(req.session.isLoggedIn);
   res.render('auth/login', {
     pageTitle: 'Login',
     path: '/login',
-    isAuthenticated: false
+    errorMessage: message
   });
 };
 
 exports.postLogin = (req, res, next) => {
-  User.findById('5ed7b576861c3e4fdc8e0758')
+  const email = req.body.email;
+  const password = req.body.password;
+  User.findOne({ email: email })
     .then((user) => {
+      if (!user) {
+        req.flash('error', 'Invalid email or password.');
+        return res.redirect('/login');
+      }
+      bcrypt
+        .compare(password, user.password)
+        .then((passwordsMatch) => {
+          if (passwordsMatch) {
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            // save is called to ensure that session has been created
+            return req.session.save((error) => {
+              console.log(error);
+              res.redirect('/');
+            });
+          }
+          req.flash('error', 'Invalid email or password.');
+          res.redirect('/login');
+        })
+        .catch((error) => {
+          console.log(error);
+          res.redirect('/login');
+        });
       // this is a sequelize object and not a JSON object
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      // save is called to ensure that session has been created
-      req.session.save((error) => {
-        console.log(error);
-        res.redirect('/');
-      });
     })
     .catch((error) => console.log(error));
 };
@@ -34,11 +59,45 @@ exports.postLogout = (req, res, next) => {
 };
 
 exports.getSignup = (req, res, next) => {
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-    isAuthenticated: false
+    errorMessage: message
   });
 };
 
-exports.postSignup = (req, res, next) => {};
+exports.postSignup = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+  User.findOne({ email: email })
+    .then((userDoc) => {
+      if (userDoc) {
+        req.flash(
+          'error',
+          'Email already in use, please sign up using a different email or login using the current email.'
+        );
+        return res.redirect('/signup');
+      }
+      return bcrypt
+        .hash(password, 12)
+        .then((hashedPassword) => {
+          const user = new User({
+            email: email,
+            password: hashedPassword,
+            cart: { items: [] }
+          });
+          return user.save();
+        })
+        .then((result) => {
+          res.redirect('/login');
+        });
+    })
+    .catch((error) => console.log(error));
+};
